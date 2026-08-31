@@ -59,7 +59,7 @@ The pipeline already knows what a boundary is. We listen; we don't rebuild.
 
 ### The day's anchors beat any threshold we invent
 
-Asked once per day, in the first session after 04:00, **after** answering the first prompt. Never before, never blocking. Three questions in one short block:
+Asked once per day, in the first session after 04:00. Three questions in one short block:
 
 1. Fixed points today that are anchors anyway — meetings, calls, a school run
 2. What time for lunch
@@ -68,6 +68,14 @@ Asked once per day, in the first session after 04:00, **after** answering the fi
 A meeting at 14:00 is a stronger stopping point than any threshold we compute, because the user is standing up regardless. The skill isn't judging their stamina; it's reading their own calendar back to them. "You said 18:30" is a quote, not an opinion.
 
 A partial answer is a complete answer — record what came, don't chase the rest. Silence is a decline; `skip` marks the day and it is never raised again.
+
+**Revised 2026-08-31 — the ask now leads instead of trails.** The original rule was "after answering the first prompt, never before, never as a preamble", so the tool never stood between the user and their question. In practice the one-shot instruction lost: in a context crowded with other hooks, two clean boundaries passed with no ask. Three changes, one owner decision behind them:
+
+1. An OS notification fires as the day's first session opens — *what does your day look like?* It is a pointer, not a question; nothing to answer, `notifiedPlan` fires it once per day.
+2. Claude opens its first reply with the three questions, then answers the request in the same reply. If the first message already volunteers times, they are recorded and not asked for.
+3. A one-line reminder rides the clock line each turn until `askedPlan` flips — recency where a one-shot gets buried. An ignored ask still resolves to `skip`.
+
+One real ask, guarded by `askedPlan` globally across sessions — the notification and the reminder both point at it, neither duplicates it.
 
 `rest_in` is the minimum of the zone ladder, the next anchor, and the end of day. The status line only draws the `→14:00` target when that anchor is the binding constraint — otherwise the arrow would imply a countdown to the wrong thing.
 

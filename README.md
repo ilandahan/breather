@@ -63,7 +63,7 @@ Collapses by terminal width. At 60 columns: `rest 1h00 │ usage 45%`.
 
 ## The day
 
-**First session after 04:00.** Once you have your first answer, Claude asks three things in one short block: fixed points today, when you want lunch, when you want to finish. A partial answer is a complete answer, silence is a decline, and it is never raised again that day.
+**First session after 04:00.** An OS notification greets you as the session opens — *what does your day look like?* — and Claude opens its first reply with the same three questions before anything else: fixed points today, when you want lunch, when you want to finish. One notification, one ask, machine-deduplicated across sessions. A partial answer is a complete answer, silence is a decline, and it is never raised again that day.
 
 **During the day.** Presence accumulates across every session, with idle gaps over 20 minutes removed. Zones escalate: silent, then one closing line, then three options, then a drafted handoff. Night moves everything up a zone. A planned anchor overrides the ladder — you're standing up for that meeting regardless.
 
