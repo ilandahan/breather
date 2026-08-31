@@ -71,7 +71,9 @@ A partial answer is a complete answer — record what came, don't chase the rest
 
 **Revised 2026-08-31 — the ask now leads instead of trails.** The original rule was "after answering the first prompt, never before, never as a preamble", so the tool never stood between the user and their question. In practice the one-shot instruction lost: in a context crowded with other hooks, two clean boundaries passed with no ask. Three changes, one owner decision behind them:
 
-1. An OS notification fires as the day's first session opens — *what does your day look like?* It is a pointer, not a question; nothing to answer, `notifiedPlan` fires it once per day.
+1. An OS notification fires as the day's first session opens — an instruction, not a question (*type your day plan into Claude…*), since the card only has a "Got it" button; nothing to answer there, `notifiedPlan` fires it once per day. On Windows it is a custom topmost WPF card (purple-glow dark card, bottom-right), not the default MessageBox — spawned via a Start-Process hop because a detached powershell executes nothing.
+
+   *Scope note (2026-08-31): the day plan is per-day only. Recurring anchors — weekly schedules, standing daily meetings — are a later iteration; today every anchor is typed fresh each morning.*
 2. Claude opens its first reply with the three questions, then answers the request in the same reply. If the first message already volunteers times, they are recorded and not asked for.
 3. A one-line reminder rides the clock line each turn until `askedPlan` flips — recency where a one-shot gets buried. An ignored ask still resolves to `skip`.
 
