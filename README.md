@@ -63,7 +63,9 @@ Collapses by terminal width. At 60 columns: `rest 1h00 │ usage 45%`.
 
 ## The day
 
-**First session after 04:00.** An OS notification greets you as the session opens — *what does your day look like?* — and Claude opens its first reply with the same three questions before anything else: fixed points today, when you want lunch, when you want to finish. One notification, one ask, machine-deduplicated across sessions. A partial answer is a complete answer, silence is a decline, and it is never raised again that day.
+**First session after 04:00.** A notification card greets you as the session opens — *type your day plan into Claude: meetings and calls, lunch time, and when you want to finish*. It is an instruction, not a question: the card only has a "Got it" button, the answers go into the chat. Claude opens its first reply with the same three questions before anything else. One notification, one ask, machine-deduplicated across sessions. A partial answer is a complete answer, silence is a decline, and it is never raised again that day.
+
+On Windows the card is a custom topmost window — dark, purple-glow border, bottom-right corner — so it lands above the terminal instead of behind it. (The plan is per-day for now; recurring anchors like a standing daily meeting are a later iteration.)
 
 **During the day.** Presence accumulates across every session, with idle gaps over 20 minutes removed. Zones escalate: silent, then one closing line, then three options, then a drafted handoff. Night moves everything up a zone. A planned anchor overrides the ladder — you're standing up for that meeting regardless.
 
@@ -85,7 +87,10 @@ Offers only land at safe boundaries: a gate passed, tests green, a commit, a que
   session-open.mjs  SessionStart — injects the skill, day plan, open handoff
   clock.mjs         UserPromptSubmit — human heartbeat, injects the clock line
   activity.mjs      PostToolBatch — work heartbeat, fires window notifications
-  notify.mjs        OS notification, cross-platform
+  notify.mjs        OS notification, cross-platform — on Windows a topmost
+                    WPF card via a Start-Process hop (a detached powershell
+                    executes nothing, so the caller launches a short-lived
+                    outer shell that starts an independent inner one)
   mark.mjs          state commands Claude calls
   statusline.mjs    the status line, and the quota data source
 ```
