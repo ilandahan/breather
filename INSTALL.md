@@ -13,7 +13,7 @@ install breather: run node install.mjs from this folder
 **Anywhere:**
 
 ```
-npx breather
+curl -fsSL https://raw.githubusercontent.com/ilandahan/breather/main/install.mjs | node -
 ```
 
 **From a clone:**
@@ -22,10 +22,12 @@ npx breather
 node install.mjs
 ```
 
-**From a URL, once you've published it** (any raw file host works):
+**As a Claude Code plugin** — the skill and the four hooks, but not the status
+line, which is a `settings.json` field a plugin cannot set:
 
 ```
-curl -fsSL https://raw.githubusercontent.com/ilandahan/breather/main/install.mjs | node -
+/plugin marketplace add ilandahan/breather
+/plugin install breather@breather
 ```
 
 PowerShell:

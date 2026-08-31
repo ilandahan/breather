@@ -1,0 +1,56 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  install:
+    # breather makes platform-specific claims about paths and notifications, so
+    # the installer is exercised on all three rather than only on Linux.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [18, 22]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: syntax
+        run: npm run check
+      - name: installer behavior
+        run: npm test
+
+  payload-in-sync:
+    # The committed install.mjs embeds the source tree. If someone edits a hook
+    # and forgets `npm run build`, the one-liner ships stale code — so CI fails
+    # rather than letting the two drift apart silently.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run build
+      - name: install.mjs must match the source tree
+        run: |
+          if ! git diff --quiet -- install.mjs; then
+            echo "::error::install.mjs is out of date. Run 'npm run build' and commit the result."
+            git --no-pager diff --stat -- install.mjs
+            exit 1
+          fi
+
+  plugin-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: manifests are valid JSON and point at files that exist
+        run: node scripts/check-manifest.mjs

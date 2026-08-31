@@ -1,0 +1,38 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "breather",
+  "description": "breather — a way out of the endless session.",
+  "version": "0.1.0",
+  "owner": {
+    "name": "Ilan Dahan",
+    "url": "https://github.com/ilandahan"
+  },
+  "plugins": [
+    {
+      "name": "breather",
+      "displayName": "breather",
+      "source": "./",
+      "description": "Claude Code will work as long as you will — breather gives you a way out. Tracks real presence across every session, reads your own calendar back to you, and offers a stopping point with a written handoff at safe moments. Never measures, never lectures, never blocks.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ilan Dahan",
+        "url": "https://github.com/ilandahan"
+      },
+      "homepage": "https://github.com/ilandahan/breather",
+      "repository": "https://github.com/ilandahan/breather",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": [
+        "sustainable-pace",
+        "developer-wellbeing",
+        "burnout",
+        "handoff",
+        "session",
+        "statusline",
+        "hooks",
+        "presence",
+        "work-life-balance"
+      ]
+    }
+  ]
+}

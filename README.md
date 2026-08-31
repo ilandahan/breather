@@ -1,10 +1,39 @@
 # breather
 
+[![check](https://github.com/ilandahan/breather/actions/workflows/check.yml/badge.svg)](https://github.com/ilandahan/breather/actions/workflows/check.yml)
+[![license: MIT](https://img.shields.io/github/license/ilandahan/breather?color=blue)](LICENSE)
+![node: >=18](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
+![dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen)
+
 **Claude Code will work as long as you will. This gives you a way out.**
 
+<img src="assets/hero.svg" alt="A terminal running a long job. breather's offer reads: Running the pipeline now, about twenty minutes. It's 13:35 — go eat, this runs without you. Below it, the status line shows rest 1h00 counting down toward a 14:00 anchor." width="100%">
+
 ```
-npx breather
+curl -fsSL https://raw.githubusercontent.com/ilandahan/breather/main/install.mjs | node -
 ```
+
+<details>
+<summary>Windows PowerShell, or install as a plugin</summary>
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/ilandahan/breather/main/install.mjs -OutFile $env:TEMP\breather.mjs; node $env:TEMP\breather.mjs
+```
+
+As a Claude Code plugin — this installs the skill and the four hooks, but not
+the status line, which is a `settings.json` field a plugin cannot set:
+
+```
+/plugin marketplace add ilandahan/breather
+/plugin install breather@breather
+```
+
+Nothing is downloaded at runtime and there are no dependencies: one file, Node
+18+, stdlib only. Read it before you run it — `install.mjs` is generated from
+[`skills/`](skills/) and [`hooks/`](hooks/) in this repo, and CI fails if the
+two ever drift apart. `--dry-run` prints every change and writes nothing.
+
+</details>
 
 Sessions with an AI have no natural end. There is always a next thing, the answer to "what now?" is never "stop", and the longer you stay the more expensive leaving becomes — because the context dies with the session and tomorrow you start cold.
 
@@ -136,14 +165,29 @@ Two independent clocks live here and they are never mixed in one sentence. `rest
 ## Repo layout
 
 ```
-src/hooks/            the five hooks, the shared store, the status line
-src/skill/            SKILL.md and the handoff template
-src/installer-body.mjs   installer logic, before the payload is embedded
-scripts/build-installer.mjs
-install.mjs           generated, committed — this is what people curl
+skills/breather/SKILL.md            the skill — what the model reads
+skills/breather/references/         handoff template
+hooks/*.mjs                         the five hooks, the shared store, the status line
+hooks/hooks.json                    hook wiring for plugin installs
+.claude-plugin/                     plugin.json, marketplace.json
+scripts/build-installer.mjs         embeds the tree above into install.mjs
+scripts/test-install.mjs            installs into a throwaway home, asserts behavior
+install.mjs                         generated, committed — this is what people curl
 ```
 
-Edit anything under `src/`, then `npm run build` to regenerate `install.mjs`, then `npm run check`. The built installer is committed on purpose: a one-liner that needs a build step first isn't a one-liner.
+Edit anything under `skills/` or `hooks/`, then:
+
+```
+npm run build     # re-embed the tree into install.mjs
+npm run check     # syntax
+npm test          # install into a throwaway home and assert behavior
+```
+
+The built installer is committed on purpose: a one-liner that needs a build step first isn't a one-liner. It carries the tree above as a base64 payload, so `npm run build` is the only thing coupling the two — and CI fails the build if they drift, because a stale payload means the one-liner installs code that isn't in the repo.
+
+`npm test` runs the real installer against an injected `CLAUDE_HOME` and checks what this README claims: files land byte-identical, four events register, re-running is idempotent, unrelated hooks and settings survive the merge, a status line that isn't ours is left alone without `--force`, `--dry-run` writes nothing, and `--uninstall` removes only its own entries.
+
+See [AGENTS.md](AGENTS.md) before sending a change.
 
 ## Known weak points
 

@@ -1,0 +1,64 @@
+<style>
+  @import url('');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1280px; height:640px; }
+  body {
+    background:
+      radial-gradient(1100px 520px at 78% -8%, #2a2150 0%, rgba(42,33,80,0) 62%),
+      radial-gradient(760px 420px at 4% 108%, #1b2b3a 0%, rgba(27,43,58,0) 60%),
+      #0b0a12;
+    color:#e8eaf0;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    padding:64px 84px 58px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    position:relative; overflow:hidden;
+  }
+  .grain { position:absolute; inset:0; opacity:.05;
+    background-image:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 3px); }
+  .name { font-size:26px; color:#a78bfa; letter-spacing:.30em; text-transform:uppercase; }
+  h1 { font-size:60px; line-height:1.16; font-weight:600; letter-spacing:-.02em; max-width:26ch; margin-top:26px; }
+  h1 .out { color:#a78bfa; }
+  .sub { font-size:29px; color:#9aa3b4; margin-top:22px; }
+  /* the status line: the product in one glance */
+  .bar { display:flex; align-items:center; gap:13px; font-size:23px;
+         background:#100e18; border:1px solid #2a2440; border-radius:11px;
+         padding:20px 26px; width:fit-content; }
+  .rest { color:#4ade80; }
+  .cells { display:flex; gap:3px; }
+  .c { width:12px; height:21px; border-radius:2.5px; }
+  .on { background:#4ade80; } .off { background:#23392c; }
+  .uon { background:#8b93a5; } .uoff { background:#2c303a; }
+  .pipe { color:#4b5361; margin:0 9px; }
+  .dim { color:#6b7280; }
+  .fg { color:#c9d1d9; }
+  .foot { display:flex; justify-content:space-between; align-items:flex-end; font-size:21px; color:#6b7280; }
+</style>
+<div class="grain"></div>
+
+<div>
+  <div class="name">breather</div>
+  <h1>Claude Code will work as long as you will.<br><span class="out">You get a way out.</span></h1>
+  <div class="sub">Never measures. Never lectures. Never blocks.</div>
+</div>
+
+<div class="bar">
+  <span class="rest">rest 1h00</span>
+  <span class="cells">
+    <i class="c on"></i><i class="c on"></i><i class="c on"></i><i class="c on"></i>
+    <i class="c on"></i><i class="c on"></i><i class="c on"></i>
+    <i class="c off"></i><i class="c off"></i><i class="c off"></i>
+  </span>
+  <span class="rest">&rarr;14:00</span>
+  <span class="pipe">&#9474;</span>
+  <span class="fg">Opus &middot; usage 45%</span>
+  <span class="cells">
+    <i class="c uon"></i><i class="c uon"></i><i class="c uon"></i>
+    <i class="c uoff"></i><i class="c uoff"></i><i class="c uoff"></i>
+  </span>
+  <span class="dim">resets 2h00</span>
+</div>
+
+<div class="foot">
+  <span>github.com/ilandahan/breather</span>
+  <span>MIT &middot; one file &middot; no dependencies</span>
+</div>

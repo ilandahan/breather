@@ -4,14 +4,42 @@
   "description": "Claude Code will work as long as you will. breather gives you a way out — it tracks presence across sessions, notices the fixed points in your day, and offers a handoff so leaving is cheap.",
   "type": "module",
   "bin": { "breather": "./install.mjs" },
-  "files": ["install.mjs", "src", "README.md", "DESIGN.md", "INSTALL.md", "LICENSE"],
+  "files": [
+    "install.mjs",
+    "skills",
+    "hooks",
+    "scripts",
+    ".claude-plugin",
+    "README.md",
+    "DESIGN.md",
+    "INSTALL.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "node scripts/build-installer.mjs",
-    "check": "node --check src/hooks/presence.mjs && node --check src/hooks/clock.mjs && node --check src/hooks/session-open.mjs && node --check src/hooks/activity.mjs && node --check src/hooks/notify.mjs && node --check src/hooks/mark.mjs && node --check src/hooks/statusline.mjs && node --check install.mjs",
+    "check": "node --check hooks/presence.mjs && node --check hooks/clock.mjs && node --check hooks/session-open.mjs && node --check hooks/activity.mjs && node --check hooks/notify.mjs && node --check hooks/mark.mjs && node --check hooks/statusline.mjs && node --check install.mjs",
+    "test": "node scripts/test-install.mjs",
     "install-local": "node install.mjs",
     "dry-run": "node install.mjs --dry-run"
   },
-  "keywords": ["claude", "claude-code", "statusline", "hooks", "handoff", "session", "sustainable-pace", "developer-wellbeing"],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "claude-code-plugin",
+    "agent-skills",
+    "statusline",
+    "hooks",
+    "handoff",
+    "session",
+    "sustainable-pace",
+    "developer-wellbeing",
+    "burnout",
+    "work-life-balance"
+  ],
+  "homepage": "https://github.com/ilandahan/breather",
+  "repository": { "type": "git", "url": "git+https://github.com/ilandahan/breather.git" },
+  "bugs": { "url": "https://github.com/ilandahan/breather/issues" },
+  "author": "Ilan Dahan (https://github.com/ilandahan)",
   "engines": { "node": ">=18" },
   "license": "MIT"
 }

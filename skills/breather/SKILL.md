@@ -65,6 +65,23 @@ For `kind=end`, quote them:
 
 None of these is a judgement. Every one of them is their own calendar read back to them.
 
+## Recurring plans and the calendar
+
+**Repeating pattern → record it once.** When the user states a schedule as a rule — "every day I stop at 12 for school pickup", "Sundays I finish at 16:00" — record it as recurring, not as today's anchors. It seeds every matching day automatically at the day rollover:
+
+```
+node ~/.claude/hooks/breather/mark.mjs recur set sun-thu anchors 12:00
+node ~/.claude/hooks/breather/mark.mjs recur set * end 18:30
+node ~/.claude/hooks/breather/mark.mjs recur list
+node ~/.claude/hooks/breather/mark.mjs recur clear [days]
+```
+
+Days: `*` (every day), a range `sun-thu`, or a list `sun,tue`. Fields: `anchors`, `lunch`, `end`. `recur set` also applies to today immediately.
+
+**`anchors` merges; `anchors-set` replaces.** Recording a new meeting must never wipe the recurring seed or an earlier recording — use plain `anchors HH:MM` to add. Only use `anchors-set` when the user explicitly rewrites the whole day.
+
+**Morning calendar pull (auto).** At the day's first session, if any calendar connector is available (Google Calendar / Gmail, Microsoft 365 / Outlook), fetch today's events, record each meeting's start with `anchors HH:MM,HH:MM`, and tell the user in one line what you recorded. If no connector is available or it is unauthenticated, say so once and move on — never retry, never block the reply on it, and never do this more than once per day.
+
 ## Anchor points
 
 **Never interrupt mid-work.** An offer that lands while the user is chasing a bug is noise, and a skill that produces noise gets uninstalled. Wait for one of:

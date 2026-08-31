@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="326" viewBox="0 0 860 326" role="img" aria-label="A terminal running a long job. breather's offer reads: Running the pipeline now, about twenty minutes. It's 13:35 , go eat, this runs without you. Below it the status line shows rest 1h00 counting down to a 14:00 anchor.">
+<title>breather — the offer, and the status line</title>
+<!--
+  Styling uses presentation attributes rather than a <style> block on purpose:
+  when an SVG is loaded through an <img> tag or a proxying CDN, a stripped
+  <style> element renders the whole card as unstyled black text. Verbose here
+  buys a hero image that cannot silently break.
+-->
+<defs>
+  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur stdDeviation="9" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+
+<!-- window -->
+<rect x="6" y="6" width="848" height="314" rx="10" fill="#100e18" stroke="#2a2440" stroke-width="1.5"/>
+<rect x="6" y="6" width="848" height="34" rx="10" fill="#171426"/>
+<rect x="6" y="30" width="848" height="10" fill="#171426"/>
+<circle cx="26" cy="23" r="5" fill="#3d3550"/>
+<circle cx="44" cy="23" r="5" fill="#3d3550"/>
+<circle cx="62" cy="23" r="5" fill="#3d3550"/>
+<text x="430" y="28" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="12" fill="#6b7280">claude</text>
+
+<!-- the long job starting -->
+<text x="26" y="74" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#c9d1d9"><tspan fill="#a78bfa">&gt;</tspan><tspan xml:space="preserve"> run the pipeline</tspan></text>
+<text x="26" y="102" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#6b7280">⏺ Running 48 tests across 3 packages…</text>
+
+<!-- the offer: the whole product in one line -->
+<rect x="20" y="124" width="820" height="76" rx="7" fill="#17142a" stroke="#3b2f63" stroke-width="1"/>
+<rect x="20" y="124" width="3" height="76" rx="1.5" fill="#a78bfa" filter="url(#glow)"/>
+<text x="40" y="152" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#e8eaf0">Running the pipeline now, about twenty minutes.</text>
+<text x="40" y="178" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#e8eaf0">It's 13:35 —<tspan fill="#a78bfa" xml:space="preserve"> go eat, this runs without you.</tspan></text>
+
+<!-- status line: left is about you, right is about the account -->
+<line x1="20" y1="228" x2="840" y2="228" stroke="#241f38" stroke-width="1"/>
+
+<text x="26" y="266" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#4ade80">rest 1h00</text>
+<!-- countdown bar: 7 of 10 remaining. it counts DOWN, never up. -->
+<rect x="116" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="125" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="134" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="143" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="152" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="161" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="170" y="255" width="7" height="13" rx="1.5" fill="#4ade80"/>
+<rect x="179" y="255" width="7" height="13" rx="1.5" fill="#23392c"/>
+<rect x="188" y="255" width="7" height="13" rx="1.5" fill="#23392c"/>
+<rect x="197" y="255" width="7" height="13" rx="1.5" fill="#23392c"/>
+<text x="212" y="266" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#4ade80">→14:00</text>
+
+<text x="290" y="266" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#6b7280">│</text>
+
+<text x="320" y="266" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#c9d1d9">Opus · usage 45%</text>
+<rect x="470" y="255" width="7" height="13" rx="1.5" fill="#8b93a5"/>
+<rect x="479" y="255" width="7" height="13" rx="1.5" fill="#8b93a5"/>
+<rect x="488" y="255" width="7" height="13" rx="1.5" fill="#8b93a5"/>
+<rect x="497" y="255" width="7" height="13" rx="1.5" fill="#2c303a"/>
+<rect x="506" y="255" width="7" height="13" rx="1.5" fill="#2c303a"/>
+<rect x="515" y="255" width="7" height="13" rx="1.5" fill="#2c303a"/>
+<text x="533" y="266" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="15" fill="#6b7280">resets 2h00 · context 31%</text>
+
+<!-- the split, named -->
+<text x="26" y="296" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="11.5" fill="#6b7280">left of the bar is about you · right of it is about the account</text>
+<text x="834" y="296" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="11.5" fill="#6b7280">counts down, never up</text>
+</svg>
