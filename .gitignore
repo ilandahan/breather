@@ -1,0 +1,29 @@
+node_modules/
+package-lock.json
+
+# Local Claude config and state — never commit these
+.claude/
+state/
+
+# Installer backups
+settings.json.bak-*
+*.bak
+*.bak-*
+
+# Test homes created by CLAUDE_HOME=... node install.mjs
+fakehome/
+.test-home/
+tmp/
+
+# Handoffs are working notes, not source
+.aid/
+handoff/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/

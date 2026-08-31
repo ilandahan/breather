@@ -1,0 +1,17 @@
+{
+  "name": "breather",
+  "version": "0.1.0",
+  "description": "Claude Code will work as long as you will. breather gives you a way out — it tracks presence across sessions, notices the fixed points in your day, and offers a handoff so leaving is cheap.",
+  "type": "module",
+  "bin": { "breather": "./install.mjs" },
+  "files": ["install.mjs", "src", "README.md", "DESIGN.md", "INSTALL.md", "LICENSE"],
+  "scripts": {
+    "build": "node scripts/build-installer.mjs",
+    "check": "node --check src/hooks/presence.mjs && node --check src/hooks/clock.mjs && node --check src/hooks/session-open.mjs && node --check src/hooks/activity.mjs && node --check src/hooks/notify.mjs && node --check src/hooks/mark.mjs && node --check src/hooks/statusline.mjs && node --check install.mjs",
+    "install-local": "node install.mjs",
+    "dry-run": "node install.mjs --dry-run"
+  },
+  "keywords": ["claude", "claude-code", "statusline", "hooks", "handoff", "session", "sustainable-pace", "developer-wellbeing"],
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}
