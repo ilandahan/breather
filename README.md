@@ -65,7 +65,11 @@ Collapses by terminal width. At 60 columns: `rest 1h00 │ usage 45%`.
 
 **First session after 04:00.** A notification card greets you as the session opens — *type your day plan into Claude: meetings and calls, lunch time, and when you want to finish*. It is an instruction, not a question: the card only has a "Got it" button, the answers go into the chat. Claude opens its first reply with the same three questions before anything else. One notification, one ask, machine-deduplicated across sessions. A partial answer is a complete answer, silence is a decline, and it is never raised again that day.
 
-On Windows the card is a custom topmost window — dark, purple-glow border, bottom-right corner — so it lands above the terminal instead of behind it. (The plan is per-day for now; recurring anchors like a standing daily meeting are a later iteration.)
+On Windows the card is a custom topmost window — dark, purple-glow border, bottom-right corner — so it lands above the terminal instead of behind it.
+
+**Recurring plans.** A schedule you state as a rule — "every day I stop at 12 for school pickup" — is recorded once (`recur set sun-thu anchors 12:00`) and seeds every matching day automatically. On a seeded day the card and the morning ask both shrink to *what's different today?*. Recording a new meeting merges into the day's list; it never wipes the seed.
+
+**Calendar.** At the day's first session, if any calendar connector is available in Claude — Google Calendar / Gmail, Microsoft 365 / Outlook — today's meetings are pulled and recorded as anchors automatically — one line tells you what landed. No connector, no problem: one quiet line, then the normal morning ask. No OAuth in breather itself; the connector belongs to your claude.ai account, so this works identically on Windows, macOS, and Linux.
 
 **During the day.** Presence accumulates across every session, with idle gaps over 20 minutes removed. Zones escalate: silent, then one closing line, then three options, then a drafted handoff. Night moves everything up a zone. A planned anchor overrides the ladder — you're standing up for that meeting regardless.
 
@@ -100,13 +104,20 @@ State lives in `~/.claude/state/breather/` — shared by every session on the ma
 ## Commands
 
 ```
-node ~/.claude/hooks/breather/mark.mjs anchors 11:00,15:30
+node ~/.claude/hooks/breather/mark.mjs anchors 11:00,15:30      # merges into today
+node ~/.claude/hooks/breather/mark.mjs anchors-set 11:00        # replaces today's list
 node ~/.claude/hooks/breather/mark.mjs lunch 13:00
 node ~/.claude/hooks/breather/mark.mjs end 18:30
+node ~/.claude/hooks/breather/mark.mjs recur set sun-thu anchors 12:00
+node ~/.claude/hooks/breather/mark.mjs recur set * end 18:30
+node ~/.claude/hooks/breather/mark.mjs recur list
+node ~/.claude/hooks/breather/mark.mjs recur clear sun-thu
 node ~/.claude/hooks/breather/mark.mjs skip
 node ~/.claude/hooks/breather/mark.mjs snooze 90
 node ~/.claude/hooks/breather/mark.mjs resumed
 ```
+
+Recurring rules live in `~/.claude/state/breather/recurring.json` — `*` is the every-day base, day names (`sun`…`sat`) override it; anchors union, lunch/end day-specific wins.
 
 ## The clock line
 
