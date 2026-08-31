@@ -1,0 +1,16 @@
+# install.mjs embeds skills/ and hooks/ as a single-line base64 payload, so the
+# decoded bytes carry whatever line endings existed on the machine that ran
+# `npm run build`. If a checkout converts those files to CRLF, two things break:
+# the installed copy no longer matches the repo source, and the next build on
+# that machine re-embeds CRLF and produces a different install.mjs than the one
+# committed. Forcing LF everywhere keeps the build byte-reproducible across
+# Linux, macOS and Windows.
+#
+# Caught by the byte-identical assertion in scripts/test-install.mjs, which
+# failed on windows-latest while passing on every other runner.
+* text=auto eol=lf
+
+# Binary — never convert.
+*.png binary
+*.gif binary
+*.jpg binary
