@@ -71,6 +71,8 @@ On Windows the card is a custom topmost window — dark, purple-glow border, bot
 
 **Calendar.** At the day's first session, if any calendar connector is available in Claude — Google Calendar / Gmail, Microsoft 365 / Outlook — today's meetings are pulled and recorded as anchors automatically — one line tells you what landed. No connector, no problem: one quiet line, then the normal morning ask. No OAuth in breather itself; the connector belongs to your claude.ai account, so this works identically on Windows, macOS, and Linux.
 
+A session left open from yesterday counts too: the first prompt of the new day gets the same morning flow — card, ask, calendar — without reopening anything.
+
 **During the day.** Presence accumulates across every session, with idle gaps over 20 minutes removed. Zones escalate: silent, then one closing line, then three options, then a drafted handoff. Night moves everything up a zone. A planned anchor overrides the ladder — you're standing up for that meeting regardless.
 
 Offers only land at safe boundaries: a gate passed, tests green, a commit, a question resolved. Never mid-fix. One per hour at most, globally, and an ignored offer counts as a decline.
