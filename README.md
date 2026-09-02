@@ -82,7 +82,7 @@ rest 1h00 ▓▓▓▓▓▓▓░░░ → meeting 14:00  │  Opus · usage 4
 The vertical bar splits it: **left is about you, right is about the account.**
 
 - `rest` — minutes until the next stopping point. Counts down, not up. The label is whatever is binding that countdown: `rest` for the fatigue ladder, `meeting`, `lunch`, or `end of day` when a planned point comes first — `meeting 25m` means the meeting is in 25 minutes.
-- `→ meeting 14:00` — what comes next in the plan, with its time. When the label already names it, only the time: `meeting 25m →14:00`.
+- `→ meeting 14:00` — what comes next in the plan, with its time. Always with the word, so `meeting 25m → meeting 14:00` reads as one statement: the meeting, in 25 minutes, at 14:00.
 - `usage` — the five-hour subscription window, with its reset.
 - `week` / `spend` — only above 60% and 70%. Below that they are noise.
 - `extra usage` — red, once past the plan limit and drawing on usage credits.

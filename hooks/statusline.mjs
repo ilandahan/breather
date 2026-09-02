@@ -41,9 +41,9 @@ function restSegment() {
   const span = Math.max(1, worked + left);
   const pct = Math.round(worked / span * 100);
   const label = WORD[t.kind];
-  // The arrow names what comes next. When the label already names it, the time alone.
+  // The arrow names what comes next, always with its word.
   const a = nextAnchor(p);
-  const target = a ? ` ${D}→${a.kind === t.kind ? "" : ` ${WORD[a.kind]} `}${a.at}${X}` : "";
+  const target = a ? ` ${D}→ ${WORD[a.kind]} ${a.at}${X}` : "";
   const moon = isNight() ? ` ${D}☾${X}` : "";
 
   if (narrow) return `${color}${label} ${clock(left)}${X}`;

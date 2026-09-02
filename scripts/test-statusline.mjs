@@ -56,11 +56,10 @@ function check(name, offsets, fn) {
 
 console.log("statusline behavior");
 
-check("meeting binding: label says meeting, arrow is the bare time", [25], at => {
+check("meeting binding: label says meeting, arrow names it too", [25], at => {
   const out = render({ anchors: [at] });
   assert.match(out, /\bmeeting 2[45]m\b/, out);
-  assert.match(out, new RegExp(`→${at}`), out);
-  assert.doesNotMatch(out, /→ meeting/, out);
+  assert.match(out, new RegExp(`→ meeting ${at}`), out);
 });
 
 check("lunch binding: label says lunch", [25], at => {
