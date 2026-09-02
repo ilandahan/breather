@@ -24,7 +24,7 @@ One line arrives before every user prompt:
 - **rest** — about the person. `worked` is time the user has actually been present today, **across every session**, with idle gaps over 20 minutes removed. `rest_in` counts down to the next point where stopping gets raised.
 - **usage** — about the subscription. `usage` is the five-hour window, `usage_resets_in` counts down to its reset. Nothing to do with fatigue.
 
-The status line the user is looking at uses these exact words. Use them too, so they never have to translate between what you said and what they see.
+The status line the user is looking at uses these exact words. Use them too, so they never have to translate between what you said and what they see. Its countdown label is whatever binds `rest_in`: `rest` for the ladder, `meeting` / `lunch` / `end of day` when `next_anchor_in` or `day_ends` comes first — so when `rest_in` equals `next_anchor_in`, say "your meeting is in 25 minutes", not "rest in 25".
 
 - `worked` — presence today across every session, idle gaps over 20 minutes removed. Not session length.
 - `rest_in` — minutes until the next stopping point: whichever comes first of the zone ladder, the next planned anchor, or the end of their day.

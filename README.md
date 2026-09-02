@@ -76,13 +76,13 @@ That sentence is the whole product.
 ## The status line
 
 ```
-rest 1h00 ▓▓▓▓▓▓▓░░░ →14:00  │  Opus · usage 45% ▓▓▓░░░ resets 2h00 · context 31%
+rest 1h00 ▓▓▓▓▓▓▓░░░ → meeting 14:00  │  Opus · usage 45% ▓▓▓░░░ resets 2h00 · context 31%
 ```
 
 The vertical bar splits it: **left is about you, right is about the account.**
 
-- `rest` — minutes until the next stopping point. Counts down, not up.
-- `→14:00` — appears only when a planned anchor is what's binding the countdown.
+- `rest` — minutes until the next stopping point. Counts down, not up. The label is whatever is binding that countdown: `rest` for the fatigue ladder, `meeting`, `lunch`, or `end of day` when a planned point comes first — `meeting 25m` means the meeting is in 25 minutes.
+- `→ meeting 14:00` — what comes next in the plan, with its time. When the label already names it, only the time: `meeting 25m →14:00`.
 - `usage` — the five-hour subscription window, with its reset.
 - `week` / `spend` — only above 60% and 70%. Below that they are noise.
 - `extra usage` — red, once past the plan limit and drawing on usage credits.

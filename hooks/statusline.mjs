@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-import { readPresence, attendedMinutes, zoneOf, liveSessions, restInMinutes, nextAnchor, isNight, writeQuota, minutesUntil, billingMode } from "./presence.mjs";
+import { readPresence, attendedMinutes, zoneOf, liveSessions, restTarget, nextAnchor, isNight, writeQuota, minutesUntil, billingMode } from "./presence.mjs";
+
+// One word per stopping point, shared by the countdown label and the arrow.
+const WORD = { rest: "rest", meeting: "meeting", lunch: "lunch", end: "end of day" };
 
 const G = "\x1b[32m", A = "\x1b[33m", R = "\x1b[31m", D = "\x1b[90m", X = "\x1b[0m";
 const cols = Number(process.env.COLUMNS || 120);
@@ -28,7 +31,8 @@ function restSegment() {
   const worked = attendedMinutes(p);
   if (worked < 1) return "";
 
-  const left = restInMinutes(p);
+  const t = restTarget(p);
+  const left = t.in;
   const zone = zoneOf(p);
   const color = zone === "boundary" ? R : zone === "quiet" ? G : A;
 
@@ -36,13 +40,15 @@ function restSegment() {
 
   const span = Math.max(1, worked + left);
   const pct = Math.round(worked / span * 100);
+  const label = WORD[t.kind];
+  // The arrow names what comes next. When the label already names it, the time alone.
   const a = nextAnchor(p);
-  const target = a && a.in === left ? ` ${D}\u2192${a.at}${X}` : "";
-  const moon = isNight() ? ` ${D}\u263e${X}` : "";
+  const target = a ? ` ${D}→${a.kind === t.kind ? "" : ` ${WORD[a.kind]} `}${a.at}${X}` : "";
+  const moon = isNight() ? ` ${D}☾${X}` : "";
 
-  if (narrow) return `${color}rest ${clock(left)}${X}`;
-  if (!wide) return `${color}rest ${clock(left)}${X}${target}`;
-  return `${color}rest ${clock(left)} ${bar(pct)}${X}${target}${moon}`;
+  if (narrow) return `${color}${label} ${clock(left)}${X}`;
+  if (!wide) return `${color}${label} ${clock(left)}${X}${target}`;
+  return `${color}${label} ${clock(left)} ${bar(pct)}${X}${target}${moon}`;
 }
 
 function usageSegment() {

@@ -18,7 +18,7 @@
   "scripts": {
     "build": "node scripts/build-installer.mjs",
     "check": "node --check hooks/presence.mjs && node --check hooks/clock.mjs && node --check hooks/session-open.mjs && node --check hooks/activity.mjs && node --check hooks/notify.mjs && node --check hooks/mark.mjs && node --check hooks/statusline.mjs && node --check install.mjs",
-    "test": "node scripts/test-install.mjs",
+    "test": "node scripts/test-install.mjs && node scripts/test-statusline.mjs",
     "install-local": "node install.mjs",
     "dry-run": "node install.mjs --dry-run"
   },

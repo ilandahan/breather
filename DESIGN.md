@@ -79,7 +79,7 @@ A partial answer is a complete answer — record what came, don't chase the rest
 
 One real ask, guarded by `askedPlan` globally across sessions — the notification and the reminder both point at it, neither duplicates it.
 
-`rest_in` is the minimum of the zone ladder, the next anchor, and the end of day. The status line only draws the `→14:00` target when that anchor is the binding constraint — otherwise the arrow would imply a countdown to the wrong thing.
+`rest_in` is the minimum of the zone ladder, the next anchor, and the end of day. The status line labels the countdown by whichever is binding — `rest`, `meeting`, `lunch`, `end of day` — so `meeting 25m` reads as a fact about the meeting, not a fatigue claim. The arrow names the next planned point with its time (`→ meeting 14:00`); it drops the word when the label already carries it (`meeting 25m →14:00`). Naming the kind is what makes it safe to show the arrow even when the ladder binds: `rest 40m → meeting 14:00` cannot be misread as a countdown to the wrong thing.
 
 ### Model and context belong to the usage side
 

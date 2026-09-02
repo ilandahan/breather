@@ -228,7 +228,10 @@ export function zoneOf(s = readPresence(), now = new Date()) {
   return ZONES[i][1];
 }
 
-export function restInMinutes(s = readPresence(), now = new Date()) {
+// What binds the countdown: the zone ladder ("rest") or the soonest planned
+// point (kind meeting/lunch/end, with its clock time). Ties go to the plan —
+// it is the more specific reason to stop.
+export function restTarget(s = readPresence(), now = new Date()) {
   const mins = attendedMinutes(s);
   const targets = isNight(now) ? [90, 180] : [180, 300];
   const byZone = targets.find(t => mins < t);
@@ -236,12 +239,16 @@ export function restInMinutes(s = readPresence(), now = new Date()) {
   const end = endMinutesLeft(s, now);
 
   const candidates = [
-    byZone ? byZone - mins : 0,
-    anchor?.in,
-    end !== null ? Math.max(0, end) : null
-  ].filter(v => v !== null && v !== undefined);
+    { in: byZone ? byZone - mins : 0, kind: "rest" },
+    ...(anchor ? [anchor] : []),
+    ...(end !== null ? [{ in: end, kind: "end", at: s.plan.end }] : [])
+  ].map(c => ({ ...c, in: Math.max(0, c.in) }));
 
-  return candidates.length ? Math.max(0, Math.min(...candidates)) : 0;
+  return candidates.sort((x, y) => x.in - y.in || (x.kind === "rest") - (y.kind === "rest"))[0];
+}
+
+export function restInMinutes(s = readPresence(), now = new Date()) {
+  return restTarget(s, now).in;
 }
 
 export function cooldownMinutes(s = readPresence()) {
