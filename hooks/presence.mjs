@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, rmSync, unlinkSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, rmSync, unlinkSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
@@ -69,7 +69,13 @@ function withLock(fn) {
       mkdirSync(lock);
       try { return fn(); } finally { try { rmSync(lock, { recursive: true }); } catch {} }
     } catch {
-      const age = existsSync(lock) ? Date.now() - Date.parse(new Date().toISOString()) : 0;
+      // the LOCK's age, from its own mtime. This used to read
+      // `Date.now() - Date.parse(new Date().toISOString())` — now minus now, always
+      // 0 — so the breaker never fired: one crash between mkdir and the finally left
+      // .lock forever, and every prompt hook after it spun 20x15ms and then wrote
+      // unlocked through the fallback below.
+      let age = 0;
+      try { age = Date.now() - statSync(lock).mtimeMs; } catch {} // gone already: nothing to break
       if (age > 2000) { try { rmSync(lock, { recursive: true }); } catch {} }
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 15);
     }

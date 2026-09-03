@@ -92,7 +92,7 @@ The vertical bar splits it: **left is about you, right is about the account.**
 - `extra usage` — red, once past the plan limit and drawing on usage credits.
 - `api billing ~$1.23` — red, when billing per token instead. The `~` is deliberate: that figure is a client-side estimate at list price and may differ from the actual bill.
 
-Fitted to the terminal width. When the row does not fit, parts go in a fixed order — the moon, the bars, the model name, cues not yet due, then the rest — and a wider terminal only ever shows more. The countdown, `usage` and a billing warning never go. Below 75 columns everything optional is already off: no cues, no `no break`, no `context`. At 60 columns: `rest 1h00 │ usage 45%`.
+Fitted to the terminal width. When the row does not fit, parts go in a fixed order — the moon, the bars, the model name, cues not yet due, then the rest — and a wider terminal only ever shows more. The countdown, `usage` and a billing warning never go. Below 75 columns everything optional is already off: no cues, no `no break`, no `context`. At 60 columns: `breather · rest 1h00  │  usage 45%`.
 
 ## The day
 

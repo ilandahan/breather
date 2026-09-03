@@ -11,7 +11,7 @@
 // Run: node scripts/test-statusline.mjs   (also part of npm test)
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, statSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, statSync, utimesSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -124,11 +124,12 @@ function clockLine(homeOpts) {
 // Every skip must be caused by the wall clock (a plan time that would cross
 // midnight or the 04:00 day boundary, or the daylight window). Any other
 // reason a check did not run is a failure, asserted at the bottom.
-let ran = 0, skipped = 0, clockSkipped = 0, defined = 0;
+let ran = 0, skipped = 0, clockSkipped = 0, defined = 0, SKIPPABLE = 0; // SKIPPABLE: checks carrying a plan-time offset
 // `cause` is what lets the bottom-of-file guard tell a clock skip from a
 // disabled check: only "clock" counts toward clockSkipped.
 const skip = (name, why, cause = "other") => { defined++; skipped++; if (cause === "clock") clockSkipped++; console.log(`  - ${name} (skipped: ${why})`); };
 function check(name, offsets, fn) {
+  if (offsets.length) SKIPPABLE++;
   const times = offsets.map(inMinutes);
   if (times.some(t => t === null)) { skip(name, "the plan time would cross midnight or the 04:00 day boundary", "clock"); return; }
   defined++; fn(...times); ran++; console.log(`  ✓ ${name}`);
@@ -565,6 +566,24 @@ check("mark.mjs offer/snooze/skip/ack/sessionend touch exactly what they say", [
   assert.deepEqual(r.outs.map(o => o.trim()), ["offer recorded", "snoozed 45m", "snoozed 60m", "plan skipped for today", "acknowledged", "session dropped"]);
 });
 
+check("a lock left behind by a crash is broken, not waited on forever", [], () => {
+  // withLock() breaks a lock older than 2s. The age must come from the lock's own
+  // mtime: `now - now` (the old bug) is always 0, so a stale .lock survived every
+  // later call and each one fell through to an UNLOCKED write.
+  const { home, dir, env } = fakeHome({ workedMin: 30 });
+  try {
+    const lock = join(dir, ".lock");
+    mkdirSync(lock);
+    const old = new Date(Date.now() - 60000);
+    utimesSync(lock, old, old);
+    execFileSync(process.execPath, [MARK, "did", "water"], { env, encoding: "utf8" });
+    assert.equal(existsSync(lock), false, "the stale lock is still there, so it was never broken");
+    assert.equal(JSON.parse(readFileSync(join(dir, "presence.json"), "utf8")).cues.water, 30);
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
+
 check("mark.mjs with no command prints usage", [], () => {
   const usage = mark({}).out;
   assert.match(usage, /^usage: mark\.mjs ack <id>/);
@@ -609,8 +628,8 @@ check("over renders in the first minute past the end", [-1], t => {
 // the checks that carry a plan-time offset (plus the one daylight render) may
 // ever skip — the budget is counted, not tuned
 assert.equal(skipped - clockSkipped, 0, `${skipped - clockSkipped} check(s) skipped for a reason other than the clock`);
-// 6 is the real ceiling, counted: five plan-time checks plus the one daylight render.
-// Not maySkip: that grew with every offset-bearing check and would have tolerated
-// losing almost all of them — a budget that big is reassurance, not a check.
-assert.ok(ran >= defined - 6, `only ${ran} of ${defined} checks ran (${skipped} skipped, 6 may)`);
+// The ceiling is every check that CAN skip: the offset-bearing ones plus the single
+// daylight render. Counted, not observed — a budget set to the worst window seen so
+// far turns red the day someone adds one more plan-time check.
+assert.ok(ran >= defined - (SKIPPABLE + 1), `only ${ran} of ${defined} checks ran (${skipped} skipped, ${SKIPPABLE + 1} may)`);
 console.log(`\n${ran} passed${skipped ? `, ${skipped} skipped` : ""}`);
