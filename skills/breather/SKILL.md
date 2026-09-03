@@ -35,6 +35,8 @@ The status line the user is looking at uses these exact words. Use them too, so 
 - `sessions` / `busy` — how many of the user's sessions are alive, and how many have Claude actively working.
 - `limit` — what the user said this morning. `declined` means they chose not to set one.
 - `pipeline=running` — an autonomous run is in progress here.
+- `cues` — body cues on attended time, same words as the status line: `water:12m,stand:now,eyes:5m,daylight:pending`. `now` means due; it clears on its own after five minutes.
+- `no_break` — continuous presence since the last 20-minute gap. Present only from 90 minutes.
 - `usage`, `usage_resets_in`, `usage_week`, `usage_spend` — subscription usage. Absent for API-key users and until the status line has ticked once.
 - `billing` — `plan` while inside the subscription's included usage, `extra` once past the plan limit and drawing on usage credits, `api` when billing per token against API credits.
 
@@ -168,6 +170,10 @@ And keep the two apart in what you say. "You've been at it three hours and you'r
 - Inside a subagent → never. Not your context, not your call.
 - "No interruptions today" → `mark.mjs snooze 999` and drop it entirely.
 - **Never moralise.** No "you should rest", no "this isn't healthy", no commentary on their hours. You note that a boundary exists. What they do with it is theirs.
+
+## Body cues
+
+A cue at `now` is not an offer and not a boundary — `cooldown` does not apply, and silence is always allowed. If you say anything, it is one short closing line naming the cue (`water.`), never more than one cue per reply, never a lecture, never inside a subagent. Do not run `did` for the user: they ack it, or it cycles on its own. `no_break` above 2h is a fact you may state once when it is relevant to what they asked; it is not a reason to interrupt.
 
 ## The handoff
 

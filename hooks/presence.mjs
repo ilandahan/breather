@@ -22,8 +22,14 @@ function dayDate(now = new Date()) {
   return d;
 }
 
-function dayKey(now = new Date()) {
-  return dayDate(now).toISOString().slice(0, 10);
+// Local Y-M-D, never toISOString(): the breather day starts at 04:00 LOCAL, and a
+// UTC key rolls whenever UTC midnight passes. East of Greenwich that is a second,
+// earlier rollover — at UTC+3 the key changed at 03:00 local, so a night session
+// lost its day (and every cue mark with it) an hour before the real boundary.
+const pad = n => String(n).padStart(2, "0");
+export function dayKey(now = new Date()) {
+  const d = dayDate(now);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export const DAY_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
@@ -78,6 +84,7 @@ const BLANK = () => {
     day: dayKey(), segments: [],
     plan: { lunch: rec.lunch, end: rec.end, anchors: rec.anchors },
     recurringSeeded: seeded,
+    cues: {},
     askedPlan: false, lastOffer: 0, snoozeUntil: 0, windows: {}
   };
 };
@@ -106,6 +113,11 @@ export function updatePresence(mutate) {
   });
 }
 
+// Body cue intervals in attended minutes, and how long a due cue reads "now"
+// before its countdown restarts on its own. Semantics: see cueState() below.
+export const CUES = { water: 45, stand: 60, eyes: 20 };
+export const DUE_WINDOW = 5;
+
 export function beat(sessionId, kind, cwd) {
   ensure();
   const now = Date.now();
@@ -124,7 +136,13 @@ export function beat(sessionId, kind, cwd) {
     const segs = s.segments;
     const last = segs[segs.length - 1];
     if (last && now - last[1] < GAP_MS) last[1] = now;
-    else segs.push([now, now]);
+    else {
+      // a real break (20m+ away): every body cue starts over. Daylight is
+      // once a day, so its mark stays.
+      const att = attendedMinutes(s);
+      s.cues = { ...s.cues, ...Object.fromEntries(Object.keys(CUES).map(k => [k, att])) };
+      segs.push([now, now]);
+    }
     return s;
   });
 }
@@ -183,11 +201,61 @@ export function isNight(now = new Date()) {
   return h >= 23 || h < 6;
 }
 
+// Body cues, in attended minutes (idle gaps pause them). A due cue reads
+// "now" for DUE_WINDOW attended minutes, then its countdown restarts on its
+// own — the status line must never nag forever. `mark.mjs did <cue>` restarts
+// it earlier. Daylight is the one once-a-day cue: shown inside DAYLIGHT_HOURS
+// until acked, never after — a missed one is not something to nag about.
+// (CUES and DUE_WINDOW are declared above beat(), which resets them.)
+const DAYLIGHT_HOURS = [10, 16];
+const DAYLIGHT_LATE_HOUR = 14;
+
+// Continuous presence thresholds for "no break": shown from NO_BREAK_MIN
+// minutes (amber), red from NO_BREAK_RED. One place, read by both hooks.
+export const NO_BREAK_MIN = 90;
+export const NO_BREAK_RED = 150;
+
+// Returns one entry per cue to show. Interval cues: { name, left, due } where
+// `left` is minutes until due (0 while due) and `due` is true inside the
+// DUE_WINDOW. Daylight, when pending: { name: "daylight", pending: true, late }
+// with `late` true from DAYLIGHT_LATE_HOUR. Consumers: statusline.mjs, clock.mjs.
+export function cueState(s = readPresence(), now = new Date()) {
+  const attended = attendedMinutes(s);
+  const marks = s.cues || {};
+  const out = Object.entries(CUES).map(([name, every]) => {
+    // isFinite, not `|| 0`: a hand-edited or half-written mark ("x", null, {})
+    // would otherwise poison the arithmetic and render `water NaNm` all day
+    const markedAt = Number.isFinite(marks[name]) ? marks[name] : 0;
+    const elapsed = Math.max(0, attended - markedAt);
+    const left = every - (elapsed % (every + DUE_WINDOW));
+    return { name, left: Math.max(0, left), due: left <= 0 };
+  });
+  const h = now.getHours();
+  if (h >= DAYLIGHT_HOURS[0] && h < DAYLIGHT_HOURS[1] && !marks.daylight) {
+    out.push({ name: "daylight", pending: true, late: h >= DAYLIGHT_LATE_HOUR });
+  }
+  return out;
+}
+
+// Minutes of continuous presence in the current stretch: the live segment's
+// length, or 0 once a 20m+ gap has ended it. This is "time since the last
+// real break", distinct from the day's attended total.
+export function stretchMinutes(s = readPresence(), now = Date.now()) {
+  const last = s.segments[s.segments.length - 1];
+  if (!last || now - last[1] >= GAP_MS) return 0;
+  return Math.round((last[1] - last[0]) / 60000);
+}
+
+// Minutes from `now` to a plan time. Plan times belong to the breather day
+// (which starts at DAY_START_HOUR): before 04:00, yesterday's "23:00" end is
+// in the past, not 22 hours ahead — otherwise `over` would never fire in the
+// one window where running late matters most.
 export function minutesToClock(hhmmStr, now = new Date()) {
   const m = /^(\d{1,2}):(\d{2})$/.exec(hhmmStr || "");
   if (!m) return null;
   const target = new Date(now);
   target.setHours(Number(m[1]), Number(m[2]), 0, 0);
+  if (now.getHours() < DAY_START_HOUR && Number(m[1]) >= DAY_START_HOUR) target.setDate(target.getDate() - 1);
   return Math.round((target - now) / 60000);
 }
 
@@ -294,6 +362,24 @@ export function readQuota() {
 export function minutesUntil(epochSeconds) {
   if (!epochSeconds) return null;
   return Math.max(0, Math.round((epochSeconds * 1000 - Date.now()) / 60000));
+}
+
+// Subscription pace: minutes until the five-hour window hits 100% at the
+// pace held so far, or null when it will not run out before the reset (or
+// when there is too little of the window elapsed to call it a pace). The
+// 300-minute window is the plan's shape, an assumption, not something the
+// status line observes.
+const USAGE_WINDOW_MIN = 300;
+const USAGE_PACE_MIN_ELAPSED = 30;
+export function usageRunsOut(pct, resetsInMinutes) {
+  // at 100% the window is already out — billingMode() says so as `extra usage`.
+  // No floor on pct: a fast burn is a fast burn at 20% too; the elapsed floor
+  // below is what keeps the first minutes of a window from reading as a pace.
+  if (resetsInMinutes === null || resetsInMinutes === undefined || !(pct > 0) || pct >= 100) return null;
+  const elapsed = USAGE_WINDOW_MIN - resetsInMinutes;
+  if (elapsed < USAGE_PACE_MIN_ELAPSED) return null;
+  const untilFull = (100 - pct) * elapsed / pct;
+  return untilFull < resetsInMinutes ? Math.round(untilFull) : null;
 }
 
 export function pipelineActive(cwd) {

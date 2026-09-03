@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, existsSync, appendFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT, updatePresence, dropSession, readRecurring, writeRecurring, recurringFor, DAY_NAMES } from "./presence.mjs";
+import { ROOT, updatePresence, dropSession, readRecurring, writeRecurring, recurringFor, DAY_NAMES, CUES, attendedMinutes } from "./presence.mjs";
 
 const [action, arg, arg2, arg3] = process.argv.slice(2);
 const current = existsSync(join(ROOT, "current")) ? readFileSync(join(ROOT, "current"), "utf8").trim() : null;
@@ -24,10 +24,18 @@ function parseDays(spec) {
 }
 
 switch (action) {
-  case "ack":
-    writeFileSync(join(ROOT, `${arg || current}.ack`), String(Date.now()));
+  case "ack": {
+    // the id becomes a filename, so it is an allowlist, not a sanitize: a session
+    // id is [\w-] and nothing else, and `ack ../../../x` must not write outside ROOT
+    const id = arg || current;
+    if (!/^[\w-]+$/.test(id || "")) {
+      console.log("usage: ack <session-id>   (letters, digits, _ and - only)");
+      process.exit(1);
+    }
+    writeFileSync(join(ROOT, `${id}.ack`), String(Date.now()));
     console.log("acknowledged");
     break;
+  }
 
   case "lunch":
     updatePresence(s => { s.askedPlan = true; s.plan.lunch = isClock(arg) ? arg : null; return s; });
@@ -102,6 +110,21 @@ switch (action) {
     break;
   }
 
+  case "did": {
+    // the user acked a body cue: restart its countdown from now (daylight is once a day)
+    // hasOwn, not `in`: "__proto__" or "toString" must not pass as a cue name
+    if (!Object.hasOwn(CUES, arg || "") && arg !== "daylight") {
+      console.log(`usage: did <${[...Object.keys(CUES), "daylight"].join("|")}>`);
+      process.exit(1);
+    }
+    updatePresence(s => {
+      s.cues = { ...s.cues, [arg]: arg === "daylight" ? true : attendedMinutes(s) };
+      return s;
+    });
+    console.log(`did: ${arg}`);
+    break;
+  }
+
   case "skip":
     updatePresence(s => { s.askedPlan = true; return s; });
     console.log("plan skipped for today");
@@ -135,5 +158,5 @@ switch (action) {
     break;
 
   default:
-    console.log("usage: mark.mjs ack <id> | lunch HH:MM | end HH:MM | anchors HH:MM,HH:MM (merges) | anchors-set HH:MM,HH:MM (replaces) | recur set <days> <field> <value> | recur list | recur clear [days] | skip | offer | snooze <min> | resumed | sessionend");
+    console.log("usage: mark.mjs ack <id> | lunch HH:MM | end HH:MM | anchors HH:MM,HH:MM (merges) | anchors-set HH:MM,HH:MM (replaces) | recur set <days> <field> <value> | recur list | recur clear [days] | did <water|stand|eyes|daylight> | skip | offer | snooze <min> | resumed | sessionend");
 }

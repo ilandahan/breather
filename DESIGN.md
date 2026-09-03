@@ -81,6 +81,20 @@ One real ask, guarded by `askedPlan` globally across sessions — the notificati
 
 `rest_in` is the minimum of the zone ladder, the next anchor, and the end of day. The status line labels the countdown by whichever is binding — `rest`, `meeting`, `lunch`, `end of day` — so `meeting 25m` reads as a fact about the meeting, not a fatigue claim. The arrow names the next planned point with its time (`→ meeting 14:00`), always with the word even when the label repeats it — the arrow is read on its own. Naming the kind is what makes it safe to show the arrow even when the ladder binds: `rest 40m → meeting 14:00` cannot be misread as a countdown to the wrong thing.
 
+### Body cues count attended time and never nag
+
+Water, stand, eyes: the body's small boundaries. They count down in the same shape as `rest` because they answer the same question — how long until the next thing I should do. Three choices keep them honest:
+
+- **Attended minutes, not the clock.** Idle gaps pause them, and a gap of 20 minutes or more restarts all three: whoever left the desk for that long drank, stood and looked away. Presence already tracks this; the cues ride on it for free.
+- **Auto-cycle.** A due cue reads `now` for five attended minutes, then its countdown restarts without an ack. A status line that stays red until obeyed is a nag, and nags get muted. `mark.mjs did <cue>` exists for the user who wants the count to be true, not to make the line behave.
+- **Daylight is the only once-a-day cue, and it stops at 16:00.** Shown grey from 10:00, amber from 14:00, gone at 16:00 whether or not it was acked. We cannot observe a skipped one, and telling someone at 17:00 that they missed the sun helps nobody. The same rule killed "lunch skipped": nothing observable behind it.
+
+`no break` is the stretch companion to `worked`: the day's total says how tired you are, the live segment's length says how long since you last moved. It appears at 90 minutes because below that it is noise.
+
+### Width is a fit, not a set of bands
+
+The cues made the row long enough that "collapse by width" had to become a rule with teeth. The first version had bands — wide shows everything, medium shows only what is due — and a band boundary turned out to be a place where widening the terminal could *remove* a signal: entering the wide band adds the bars and the model name, and if the row then does not fit, something visible one column narrower gets trimmed to pay for them. So there is one composition above the narrow floor and one fixed trim order, and the row is the shortest prefix of that order that fits the width Claude Code passes in. Cosmetic parts go first (bars, model name), cues not yet due before due ones, the countdown and the account word never. A wider terminal can only show more; a test sweeps every column across the narrow boundary to keep it that way. Below 75 columns nothing optional is composed at all, which is the same rule with every trim already applied.
+
 ### Model and context belong to the usage side
 
 The status line splits at a vertical bar: left is about the person, right is about the account. Model name and context percentage are properties of the session's machinery, not of the human, so they sit right.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
-import { beat, readPresence, attendedMinutes, zoneOf, cooldownMinutes, liveSessions, restInMinutes, nextAnchor, isNight, pipelineActive, readQuota, minutesUntil, hhmm, fmtDuration, maybeNotifyPlan } from "./presence.mjs";
+import { beat, readPresence, attendedMinutes, zoneOf, cooldownMinutes, liveSessions, restInMinutes, nextAnchor, isNight, pipelineActive, readQuota, minutesUntil, hhmm, fmtDuration, maybeNotifyPlan, cueState, stretchMinutes, NO_BREAK_MIN } from "./presence.mjs";
 
 let input = {};
 try { input = JSON.parse(readFileSync(0, "utf8") || "{}"); } catch {}
@@ -26,6 +26,10 @@ const a = nextAnchor(p);
 if (a) parts.push(`next_anchor=${a.at}`, `next_anchor_kind=${a.kind}`, `next_anchor_in=${a.in}m`);
 if (p.plan?.end) parts.push(`day_ends=${p.plan.end}`);
 if (pipelineActive(cwd)) parts.push("pipeline=running");
+// same words as the status line, so Claude never translates
+parts.push(`cues=${cueState(p).map(c => `${c.name}:${c.name === "daylight" ? "pending" : c.due ? "now" : `${c.left}m`}`).join(",")}`);
+const stretch = stretchMinutes(p);
+if (stretch >= NO_BREAK_MIN) parts.push(`no_break=${fmtDuration(stretch)}`);
 
 const q = readQuota();
 if (q?.mode && q.mode !== "unknown") parts.push(`billing=${q.mode}`);

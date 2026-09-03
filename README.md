@@ -76,19 +76,23 @@ That sentence is the whole product.
 ## The status line
 
 ```
-rest 1h00 ▓▓▓▓▓▓▓░░░ → meeting 14:00  │  Opus · usage 45% ▓▓▓░░░ resets 2h00 · context 31%
+rest 1h00 ▓▓▓▓▓▓▓░░░ → meeting 14:00 · no break 1h40 · water 12m · stand now · eyes 5m  │  Opus · usage 45% ▓▓▓░░░ resets 2h00 · context 31%
 ```
 
 The vertical bar splits it: **left is about you, right is about the account.**
 
 - `rest` — minutes until the next stopping point. Counts down, not up. The label is whatever is binding that countdown: `rest` for the fatigue ladder, `meeting`, `lunch`, or `end of day` when a planned point comes first — `meeting 25m` means the meeting is in 25 minutes.
 - `→ meeting 14:00` — what comes next in the plan, with its time. Always with the word, so `meeting 25m → meeting 14:00` reads as one statement: the meeting, in 25 minutes, at 14:00.
-- `usage` — the five-hour subscription window, with its reset.
+- `over 25m` — red, once the end of day you declared has passed. Replaces the countdown.
+- `no break 1h40` — continuous presence since your last gap of 20 minutes or more. Silent below 90 minutes, amber from there, red from 150. Not the day's total; that is `worked` on the clock line.
+- `water 12m` / `stand now` / `eyes 5m` — body cues on attended time (idle pauses them): water every 45 minutes, stand every 60, eyes every 20. A due cue reads `now` for five minutes, then restarts on its own — it never nags. `mark.mjs did water` restarts it earlier, and a real break restarts all three. `daylight` appears once a day between 10:00 and 16:00 until you mark it, and is simply gone after — a missed one is not something to be told about.
+- `usage` — the five-hour subscription window, with its reset. `out ~15:10` appears in amber only when the pace so far would hit 100% before the reset; the `~` is honest about assuming that pace holds.
+- `context` — grey until 70%, amber to 85%, red above: auto-compact lands near 95% and drops state without asking.
 - `week` / `spend` — only above 60% and 70%. Below that they are noise.
 - `extra usage` — red, once past the plan limit and drawing on usage credits.
 - `api billing ~$1.23` — red, when billing per token instead. The `~` is deliberate: that figure is a client-side estimate at list price and may differ from the actual bill.
 
-Collapses by terminal width. At 60 columns: `rest 1h00 │ usage 45%`.
+Fitted to the terminal width. When the row does not fit, parts go in a fixed order — the moon, the bars, the model name, cues not yet due, then the rest — and a wider terminal only ever shows more. The countdown, `usage` and a billing warning never go. Below 75 columns everything optional is already off: no cues, no `no break`, no `context`. At 60 columns: `rest 1h00 │ usage 45%`.
 
 ## The day
 
@@ -143,6 +147,7 @@ node ~/.claude/hooks/breather/mark.mjs recur set sun-thu anchors 12:00
 node ~/.claude/hooks/breather/mark.mjs recur set * end 18:30
 node ~/.claude/hooks/breather/mark.mjs recur list
 node ~/.claude/hooks/breather/mark.mjs recur clear sun-thu
+node ~/.claude/hooks/breather/mark.mjs did water                # also stand | eyes | daylight
 node ~/.claude/hooks/breather/mark.mjs skip
 node ~/.claude/hooks/breather/mark.mjs snooze 90
 node ~/.claude/hooks/breather/mark.mjs resumed
@@ -185,7 +190,7 @@ npm test          # install into a throwaway home and assert behavior
 
 The built installer is committed on purpose: a one-liner that needs a build step first isn't a one-liner. It carries the tree above as a base64 payload, so `npm run build` is the only thing coupling the two — and CI fails the build if they drift, because a stale payload means the one-liner installs code that isn't in the repo.
 
-`npm test` runs the real installer against an injected `CLAUDE_HOME` and checks what this README claims: files land byte-identical, four events register, re-running is idempotent, unrelated hooks and settings survive the merge, a status line that isn't ours is left alone without `--force`, `--dry-run` writes nothing, and `--uninstall` removes only its own entries.
+`npm test` runs the real installer against an injected `CLAUDE_HOME` and checks what this README claims: files land byte-identical, four events register, re-running is idempotent, unrelated hooks and settings survive the merge, a status line that isn't ours is left alone without `--force`, `--dry-run` writes nothing, and `--uninstall` removes only its own entries. It then drives the status line, the clock hook and `mark.mjs` against a throwaway home: the countdown labels, the arrow, the body cues, the width fit at every column across the narrow boundary, and every `mark` command. `npm run coverage` measures which hook lines that suite reaches, with nothing but Node's own V8 coverage.
 
 See [AGENTS.md](AGENTS.md) before sending a change.
 
