@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, existsSync, appendFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT, updatePresence, dropSession, readRecurring, writeRecurring, recurringFor, DAY_NAMES, CUES, attendedMinutes } from "./presence.mjs";
+import { ROOT, updatePresence, dropSession, readRecurring, writeRecurring, recurringFor, DAY_NAMES, CUES, attendedMinutes, startFreshStretch } from "./presence.mjs";
 
 const [action, arg, arg2, arg3] = process.argv.slice(2);
 const current = existsSync(join(ROOT, "current")) ? readFileSync(join(ROOT, "current"), "utf8").trim() : null;
@@ -125,6 +125,19 @@ switch (action) {
     break;
   }
 
+  case "break": {
+    // the user stepped away and came back inside GAP_MS, so nothing detected it:
+    // a coffee and a chat is 12 minutes, and no_break kept climbing through it.
+    // Same reset a 20m+ gap gives — stretch to 0, the three interval cues
+    // restarted — plus an offer stamp, because breather has no business
+    // offering a break to someone who just took one. `worked` does not move:
+    // it is attended time, not unrested time, and shrinking it would be a lie
+    // told to the one number that decides the boundary zone.
+    updatePresence(s => { startFreshStretch(s); s.lastOffer = Date.now(); return s; });
+    console.log("break recorded");
+    break;
+  }
+
   case "skip":
     updatePresence(s => { s.askedPlan = true; return s; });
     console.log("plan skipped for today");
@@ -158,5 +171,5 @@ switch (action) {
     break;
 
   default:
-    console.log("usage: mark.mjs ack <id> | lunch HH:MM | end HH:MM | anchors HH:MM,HH:MM (merges) | anchors-set HH:MM,HH:MM (replaces) | recur set <days> <field> <value> | recur list | recur clear [days] | did <water|stand|eyes|daylight> | skip | offer | snooze <min> | resumed | sessionend");
+    console.log("usage: mark.mjs ack <id> | lunch HH:MM | end HH:MM | anchors HH:MM,HH:MM (merges) | anchors-set HH:MM,HH:MM (replaces) | recur set <days> <field> <value> | recur list | recur clear [days] | did <water|stand|eyes|daylight> | break | skip | offer | snooze <min> | resumed | sessionend");
 }

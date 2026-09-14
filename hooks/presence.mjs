@@ -124,6 +124,19 @@ export function updatePresence(mutate) {
 export const CUES = { water: 45, stand: 60, eyes: 20 };
 export const DUE_WINDOW = 5;
 
+// Start a new stretch: the current one ends here and every interval cue starts
+// over. Daylight is once a day, so its mark stays. Attended minutes are NOT
+// touched — the zero-length segment adds nothing, and the day's load is what it
+// is whether or not you rested. Two callers, which is why it lives here: a 20m+
+// gap detected by beat(), and `mark.mjs break`, which says the same thing out
+// loud when the gap was too short to detect.
+export function startFreshStretch(s, now = Date.now()) {
+  const att = attendedMinutes(s);
+  s.cues = { ...s.cues, ...Object.fromEntries(Object.keys(CUES).map(k => [k, att])) };
+  s.segments.push([now, now]);
+  return s;
+}
+
 export function beat(sessionId, kind, cwd) {
   ensure();
   const now = Date.now();
@@ -142,13 +155,7 @@ export function beat(sessionId, kind, cwd) {
     const segs = s.segments;
     const last = segs[segs.length - 1];
     if (last && now - last[1] < GAP_MS) last[1] = now;
-    else {
-      // a real break (20m+ away): every body cue starts over. Daylight is
-      // once a day, so its mark stays.
-      const att = attendedMinutes(s);
-      s.cues = { ...s.cues, ...Object.fromEntries(Object.keys(CUES).map(k => [k, att])) };
-      segs.push([now, now]);
-    }
+    else startFreshStretch(s, now); // a real break (20m+ away)
     return s;
   });
 }

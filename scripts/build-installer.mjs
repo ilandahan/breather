@@ -28,6 +28,11 @@ const SOURCES = [
 function walk(dir) {
   const out = [];
   for (const name of readdirSync(dir)) {
+    // Nothing hidden ships. Tools write into whatever directory they are run
+    // from: an AID Stop hook dropped .aid/qa/enforcement.log into hooks/ and the
+    // walker embedded it in the payload, so the installer would have written a
+    // foreign log into every user's ~/.claude/hooks/breather/.
+    if (name.startsWith(".")) continue;
     const full = join(dir, name);
     if (statSync(full).isDirectory()) out.push(...walk(full));
     else out.push(full);

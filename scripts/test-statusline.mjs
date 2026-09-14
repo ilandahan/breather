@@ -21,7 +21,7 @@ const HOOKS = join(dirname(fileURLToPath(import.meta.url)), "..", "hooks");
 const STATUSLINE = join(HOOKS, "statusline.mjs");
 const MARK = join(HOOKS, "mark.mjs");
 const CLOCK = join(HOOKS, "clock.mjs");
-const { cueState, minutesToClock, usageRunsOut, endMinutesLeft, nextAnchor, restTarget, stretchMinutes, dayKey } = await import(pathToFileURL(join(HOOKS, "presence.mjs")).href);
+const { cueState, minutesToClock, usageRunsOut, endMinutesLeft, nextAnchor, restTarget, stretchMinutes, attendedMinutes, dayKey } = await import(pathToFileURL(join(HOOKS, "presence.mjs")).href);
 
 const ANSI = /\x1b\[\d+m/g;
 const RED = "\x1b[31m", AMBER = "\x1b[33m", GREY = "\x1b[90m";
@@ -278,6 +278,24 @@ check("mark.mjs did daylight records true; unknown and prototype names are refus
     assert.throws(() => mark({}, "did", ...(bad === undefined ? [] : [bad])),
       e => /usage: did <water\|stand\|eyes\|daylight>/.test(e.stdout || ""), `accepted did ${bad}`);
   }
+});
+
+check("mark.mjs break ends the stretch and restarts the cues, without moving worked", [], () => {
+  // the break the gap rule cannot see: away 12 minutes, so no_break kept climbing
+  const segments = [[100, 0]];
+  assert.match(render({ segments, raw: true }), colored(AMBER, "no break 1h40"));
+
+  const { out, presence } = mark({ segments, cues: { stand: 10, daylight: true } }, "break");
+  assert.equal(out.trim(), "break recorded");
+  assert.equal(stretchMinutes(presence), 0, "the stretch must end where the break was taken");
+  assert.equal(attendedMinutes(presence), 100, "a break does not undo the hours already worked");
+  assert.deepEqual(
+    Object.fromEntries(cueState(presence).map(c => [c.name, c.left])),
+    { water: 45, stand: 60, eyes: 20 },
+    "every interval cue starts over"
+  );
+  assert.equal(presence.cues.daylight, true, "daylight is once a day and survives the break");
+  assert.ok(presence.lastOffer > 0, "breather must not offer a break to someone who just took one");
 });
 
 check("a garbage cue mark cannot poison the countdown", [], () => {

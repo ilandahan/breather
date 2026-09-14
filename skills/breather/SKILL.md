@@ -175,6 +175,14 @@ And keep the two apart in what you say. "You've been at it three hours and you'r
 
 A cue at `now` is not an offer and not a boundary — `cooldown` does not apply, and silence is always allowed. If you say anything, it is one short closing line naming the cue (`water.`), never more than one cue per reply, never a lecture, never inside a subagent. Do not run `did` for the user: they ack it, or it cycles on its own. `no_break` above 2h is a fact you may state once when it is relevant to what they asked; it is not a reason to interrupt.
 
+A break shorter than 20 minutes is invisible — nothing detects it, so `no_break` keeps climbing through the coffee they just made. When the user says they stepped away, name the command once and let them run it:
+
+```
+node ~/.claude/hooks/breather/mark.mjs break
+```
+
+It ends the stretch and restarts the three interval cues. `worked` does not move: it counts attended time, not unrested time, so a long day stays a long day and `rest` stays where it is. Same rule as `did` — theirs to run, not yours.
+
 ## The handoff
 
 Read `references/handoff-template.md` first. Write to `.aid/handoff/YYYY-MM-DD-HHMM.md`.
